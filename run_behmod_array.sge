@@ -1,0 +1,61 @@
+#!/bin/bash
+#$ -S /bin/bash
+#$ -cwd
+#$ -N behmod_long
+#$ -o logs/$JOB_NAME.$JOB_ID.$SGE_TASK_ID.out
+#$ -e logs/$JOB_NAME.$JOB_ID.$SGE_TASK_ID.err
+#$ -l tmem=12G,h_vmem=16G
+#$ -l h_rt=15:00:00
+#$ -pe smp 1
+# Submit with:
+#   cd ~/biophysical_model_ankur/results/behmod
+#   find conn -type f -name 'LEMS_*_nrn.py' | sed 's|/[^/]*$||' | sort -u > runs.index
+#   qsub -t 1-$(wc -l < runs.index) run_behmod_array.sge
+
+set -euo pipefail
+mkdir -p logs
+
+###########  Environment (same as manual)  ###########
+module purge
+source /share/apps/source_files/python/python-3.12.11.source
+source "$HOME/neuroml/bin/activate"
+export PATH="$VIRTUAL_ENV/bin:$PATH"
+
+echo "[diag] which python: $(which python)"
+echo "[diag] which nrnivmodl: $(which nrnivmodl)"
+python -c "import neuron, sys; print('[diag] NEURON', neuron.__version__, 'Python', sys.version)" || true
+
+###########  Pick this task’s run directory  ###########
+if [[ -z "${SGE_TASK_ID:-}" ]]; then
+  echo "SGE_TASK_ID not set"; exit 1
+fi
+RUN_DIR="$(sed -n "${SGE_TASK_ID}p" runs.index || true)"
+[[ -n "$RUN_DIR" && -d "$RUN_DIR" ]] || { echo "Missing run dir for task ${SGE_TASK_ID}"; exit 2; }
+
+echo "TASK ${SGE_TASK_ID} → ${RUN_DIR}"
+cd "$RUN_DIR"
+
+###########  Compile mechanisms  ###########
+if [[ -d mod ]]; then
+  echo "[build] compiling from mod/"
+  "$HOME/neuroml/bin/nrnivmodl" mod
+elif compgen -G "*.mod" > /dev/null; then
+  echo "[build] compiling from current dir"
+  "$HOME/neuroml/bin/nrnivmodl" .
+else
+  echo "ERROR: no mechanisms found in $RUN_DIR"
+  exit 11
+fi
+
+# make compiled mechanisms visible
+export LD_LIBRARY_PATH="$PWD/x86_64:${LD_LIBRARY_PATH:-}"
+export PATH="$PWD/x86_64:$PATH"
+
+###########  Run the NEURON Python script  ###########
+RUNNER="$(ls -1 LEMS_*_nrn.py | head -n1)"
+[[ -n "$RUNNER" ]] || { echo "ERROR: no LEMS_*_nrn.py found"; exit 3; }
+
+echo "[run] python $RUNNER -nogui"
+python "$RUNNER" -nogui
+
+echo "[done] $RUN_DIR"

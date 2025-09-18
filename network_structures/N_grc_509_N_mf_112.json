@@ -1,0 +1,8 @@
+{
+  "pickle": "/Users/laviniatakarabe/Desktop/biophysical_model_cluster_local/network_structures/N_grc_509_N_mf_112.pkl",
+  "N_mf": 112,
+  "N_glom": 151,
+  "N_grc": 509,
+  "fan_in": 4,
+  "seed": 1001
+}

@@ -1,0 +1,42 @@
+{
+  "connectivity": "/Users/laviniatakarabe/Desktop/biophysical_model_cluster_local/network_structures/N_grc_514_N_mf_141.pkl",
+  "connectivity_hash12": "06577a437413",
+  "behavior_mat": "/Users/laviniatakarabe/Desktop/biophysical_model_cluster_local/data/191018_13_39_41_dfTrace.mat",
+  "N_mf": 141,
+  "pm_frac": 0.523,
+  "nm_frac": 0.27,
+  "ns_frac": 0.20699999999999996,
+  "counts": {
+    "PM": 74,
+    "NM": 38,
+    "NS": 29
+  },
+  "minT": 100.0,
+  "maxT": 140.0,
+  "acq_rate": 7.2,
+  "spike_dt": 0.001,
+  "label": "states_2",
+  "seeds": {
+    "PM": 7958606,
+    "NM": 6875218,
+    "NS": 4744622
+  },
+  "rates": {
+    "PM": {
+      "scale": 50.0,
+      "offset": 7.0,
+      "minrate": 2.0
+    },
+    "NM": {
+      "scale": -50.0,
+      "offset": 40.0,
+      "minrate": 2.0
+    },
+    "NS": {
+      "scale": 0.0,
+      "offset": 7.0,
+      "minrate": 2.0
+    }
+  },
+  "output_nml": "/Users/laviniatakarabe/Desktop/biophysical_model_cluster_local/spikes/191018_13_39_41_dfTrace__N_grc_514_N_mf_141__06577a437413__pm0.52_nm0.27__t100-140.nml"
+}
